@@ -50,15 +50,10 @@ PgDatabase *prepare_auth_database(PgSocket *client)
 	const char *auth_dbname = client->db->auth_dbname ? client->db->auth_dbname : cf_auth_dbname;
 
     if (!auth_dbname) {
-        if (client->db->admin) {
-            slog_error(client, "admin database \"%s\" cannot be an authentication database", auth_db->dbname);
-            disconnect_client(client, true, "bouncer config error");
-            return NULL;
-        }
-        return client->db;
+        auth_db = client->db;
+    } else {
+        auth_db = find_database(auth_dbname);
     }
-
-    auth_db = find_database(auth_dbname);
 
 	if (!auth_db) {
 		slog_error(client, "authentication database \"%s\" is not configured.", auth_dbname);
@@ -74,6 +69,12 @@ PgDatabase *prepare_auth_database(PgSocket *client)
 			auth_dbname);
 		return NULL;
 	}
+
+    if (auth_db->admin) {
+        slog_error(client, "admin database \"%s\" cannot be an authentication database", auth_db->dbname);
+        disconnect_client(client, true, "bouncer config error");
+        return NULL;
+    }
 
 	return auth_db;
 }
