@@ -816,12 +816,14 @@ class Bouncer(QueryRunner):
                 match_count = len(re.findall(re_string, content))
                 assert match_count == times
 
-    """
-    Run pgbouncer instance with provided config and restore previous config in after execution
-    """
-
     @contextmanager
     def run_with_config(self, config):
+        """Run the pgbouncer instance with provided config and restore the
+        previous config after execution
+
+        config:
+            A new pgbouncer config in ini format
+        """
         with self.ini_path.open("w+") as f:
             config_old = f.read()
             f.truncate()
