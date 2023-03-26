@@ -230,7 +230,7 @@ def test_auth_dbname_usage_with_target_db(
         auth_query = SELECT usename, passwd FROM pg_shadow where usename = $1
         auth_user = pswcheck
         stats_users = stats
-        listen_addr = {bouncer.pg.host}
+        listen_addr = {bouncer.host}
         verbose = 2
         admin_users = pswcheck
         auth_file = userlist.txt
@@ -267,7 +267,7 @@ def test_auth_dbname_usage_with_global_auth_dbname(
         auth_query = SELECT usename, passwd FROM pg_shadow where usename = $1
         auth_user = pswcheck
         stats_users = stats
-        listen_addr = {bouncer.pg.host}
+        listen_addr = {bouncer.host}
         verbose = 2
         admin_users = pswcheck
         auth_file = userlist.txt
@@ -303,7 +303,7 @@ def test_explicitly_set_auth_dbname_in_db_definition(
         auth_query = SELECT usename, passwd FROM pg_shadow where usename = $1
         auth_user = pswcheck
         stats_users = stats
-        listen_addr = {bouncer.pg.host}
+        listen_addr = {bouncer.host}
         verbose = 2
         admin_users = pswcheck
         auth_file = userlist.txt
@@ -336,7 +336,7 @@ def test_explicitly_set_auth_dbname_globally(
         auth_query = SELECT usename, passwd FROM pg_shadow where usename = $1
         auth_user = pswcheck
         stats_users = stats
-        listen_addr = {bouncer.pg.host}
+        listen_addr = {bouncer.host}
         verbose = 2
         admin_users = pswcheck
         auth_file = userlist.txt

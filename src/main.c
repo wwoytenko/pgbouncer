@@ -327,7 +327,6 @@ static const struct CfSect config_sects [] = {
 	{
 		.sect_name = "pgbouncer",
 		.key_list = bouncer_params,
-//        .set_key =
 	}, {
 		.sect_name = "databases",
 		.set_key = parse_database,
@@ -407,14 +406,7 @@ void load_config(void)
 
 	/* actual loading */
 	ok = cf_load_file(&main_config, cf_config_file);
-
-    /* check cf_auth_dbname does not equal to pgbouncer */
-    if (ok){
-        ok = loader_auth_dbname_check();
-    }
-
 	if (ok) {
-
 		/* load users if needed */
 		if (requires_auth_file(cf_auth_type))
 			loader_users_check();
