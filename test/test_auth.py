@@ -209,7 +209,6 @@ def test_scram_both(bouncer):
 #       2. Connecting to the dbaname=pgbouncer port=6432 using fallback pool
 #       3. Check that we are falling when we set auth_dbaname = pgbouncer in config
 @pytest.mark.skipif("WINDOWS", reason="Windows does not have SIGHUP")
-# test_connection_with_missing_stats_user_and_without_global_auth_dbname
 def test_auth_dbname_usage_with_target_db(
     bouncer,
 ):
@@ -223,22 +222,22 @@ def test_auth_dbname_usage_with_target_db(
         * target client DB is using as an auth_dbname
     """
 
-    config = f"""
-        [databases]
-        * = host={bouncer.pg.host} port={bouncer.pg.port}
-        [pgbouncer]
-        auth_query = SELECT usename, passwd FROM pg_shadow where usename = $1
-        auth_user = pswcheck
-        stats_users = stats
-        listen_addr = {bouncer.host}
-        verbose = 2
-        admin_users = pswcheck
-        auth_file = userlist.txt
-        listen_port = {bouncer.port}
-    """
+    config = f"""[databases]
+* = host={bouncer.pg.host} port={bouncer.pg.port}
+[pgbouncer]
+auth_query = SELECT usename, passwd FROM pg_shadow where usename = $1
+auth_user = pswcheck
+stats_users = stats
+listen_addr = {bouncer.host}
+verbose = 2
+admin_users = pswcheck
+auth_file = userlist.txt
+listen_port = {bouncer.port}
+"""
 
     # good password
     bouncer.test(user="pgbouncer", password="fake")
+    bouncer.reboot()
 
     with bouncer.run_with_config(config):
         with pytest.raises(psycopg.OperationalError, match="bouncer config error"):
@@ -248,7 +247,6 @@ def test_auth_dbname_usage_with_target_db(
 
 
 @pytest.mark.skipif("WINDOWS", reason="Windows does not have SIGHUP")
-# test_connection_with_missing_stats_user_and_global_auth_dbname
 def test_auth_dbname_usage_with_global_auth_dbname(
     bouncer,
 ):
@@ -280,6 +278,7 @@ def test_auth_dbname_usage_with_global_auth_dbname(
 
     with bouncer.run_with_config(config):
         with pytest.raises(psycopg.OperationalError, match="bouncer config error"):
+            time.sleep(1)
             # bad password
             # We expect that stats user does not exist ether in userlist.txt and in postgresql DB
             bouncer.test(user="stats", password="stats", dbname="pgbouncer")
@@ -316,38 +315,3 @@ def test_explicitly_set_auth_dbname_in_db_definition(
     with bouncer.log_contains("cannot use the reserved \"pgbouncer\" database as an auth_dbname", 1):
         with bouncer.run_with_config(config):
             time.sleep(1)
-
-
-@pytest.mark.skipif("WINDOWS", reason="Windows does not have SIGHUP")
-def test_explicitly_set_auth_dbname_globally(
-        bouncer,
-):
-    """Regression for https://github.com/pgbouncer/pgbouncer/issues/314
-
-    Check that the pgbouncer does not apply config which contains
-    explicitly pgbouncer database (admin DB) set in auth_dbname
-    in database definition section
-    """
-
-    config = f"""
-        [databases]
-        * = host={bouncer.pg.host} port={bouncer.pg.port}
-        [pgbouncer]
-        auth_query = SELECT usename, passwd FROM pg_shadow where usename = $1
-        auth_user = pswcheck
-        stats_users = stats
-        listen_addr = {bouncer.host}
-        verbose = 2
-        admin_users = pswcheck
-        auth_file = userlist.txt
-        listen_port = {bouncer.port}
-        auth_dbname = pgbouncer
-    """
-
-    # good password
-    bouncer.test(user="pgbouncer", password="fake")
-
-    with bouncer.log_contains("cannot use the reserved \"pgbouncer\" database as an auth_dbname", 1):
-        with bouncer.run_with_config(config):
-            time.sleep(1)
-

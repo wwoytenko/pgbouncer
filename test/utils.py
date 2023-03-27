@@ -824,9 +824,9 @@ class Bouncer(QueryRunner):
         config:
             A new pgbouncer config in ini format
         """
-        with self.ini_path.open("w+") as f:
+        with self.ini_path.open("r+") as f:
             config_old = f.read()
-            f.truncate()
+            f.truncate(0)
             f.write(config)
 
         try:
@@ -834,7 +834,6 @@ class Bouncer(QueryRunner):
             yield self
         finally:
             # Code to release resource, e.g.:
-            with self.ini_path.open("w+") as f:
-                f.truncate()
+            with self.ini_path.open("w") as f:
                 f.write(config_old)
             self.admin("RELOAD")
