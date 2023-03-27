@@ -544,17 +544,6 @@ static bool auth_loaded(const char *fn)
 	return false;
 }
 
-bool loader_auth_dbname_check(void)
-{
-    if (cf_auth_dbname && strcmp(cf_auth_dbname, "pgbouncer") == 0) {
-        log_error("cannot use the reserved \"%s\" database as an auth_dbname", cf_auth_dbname);
-        free(cf_auth_dbname);
-        cf_auth_dbname = NULL;
-        return false;
-    }
-    return true;
-}
-
 bool loader_users_check(void)
 {
 	if (auth_loaded(cf_auth_file))
